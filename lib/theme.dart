@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 const Color blackhowlprimary = Color(0xff1E1E2C);
 const Color blackhowllight = Color(0xff2F3142);
 const Color blackhowlcontrast = Color(0xffFFF8DE);
+
 const Color White = Color(0xffffffff);
 
 final ThemeData blackHowl = ThemeData(

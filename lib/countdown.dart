@@ -14,6 +14,7 @@ class _PomodoroTimerState extends State<PomodoroTimer> {
   Timer? _timer;
   bool isPomodoro = true;
   var formatter = NumberFormat("00");
+  bool isWaitingToStart = true; // Start with waiting state
 
   @override
   void dispose() {
@@ -25,6 +26,9 @@ class _PomodoroTimerState extends State<PomodoroTimer> {
     if (_timer != null) {
       _timer!.cancel();
     }
+    setState(() {
+      isRunning = true;
+    });
 
     int totalSeconds = minutes * 60 + seconds;
 
@@ -35,6 +39,7 @@ class _PomodoroTimerState extends State<PomodoroTimer> {
           minutes = totalSeconds ~/ 60;
           seconds = totalSeconds % 60;
         } else {
+          _timer!.cancel(); // Cancel the timer when it reaches 0
           _transitionToNextSession();
         }
       });
@@ -54,6 +59,7 @@ class _PomodoroTimerState extends State<PomodoroTimer> {
     startTimer();
     setState(() {
       isRunning = true;
+      isWaitingToStart = false; // No longer waiting once started
     });
   }
 
@@ -78,9 +84,9 @@ class _PomodoroTimerState extends State<PomodoroTimer> {
       isPomodoro = false;
       minutes = 5;
       seconds = 0;
-      isRunning = true;
+      isRunning = false;
+      isWaitingToStart = true;
     });
-    startTimer(); // Start the break timer
   }
 
   void _transitionToPomodoro() {
@@ -88,16 +94,16 @@ class _PomodoroTimerState extends State<PomodoroTimer> {
       isPomodoro = true;
       minutes = 25;
       seconds = 0;
-      isRunning = true;
+      isRunning = false;
+      isWaitingToStart = true;
     });
-    startTimer(); // Start the Pomodoro timer
   }
 
   void resetTimer() {
     stopTimer();
 
     setState(() {
-      isRunning = false;
+      isWaitingToStart = true; // Reset the flag to waiting state
       if (isPomodoro) {
         minutes = 25;
       } else {
@@ -115,7 +121,7 @@ class _PomodoroTimerState extends State<PomodoroTimer> {
         children: [
           Text(
             "${formatter.format(minutes)} : ${formatter.format(seconds)}",
-            style: Theme.of(context).textTheme.bodyLarge,
+            style: Theme.of(context).textTheme.bodyText1,
           ),
           SizedBox(height: 10),
           Row(
@@ -126,11 +132,15 @@ class _PomodoroTimerState extends State<PomodoroTimer> {
                   if (isRunning) {
                     pauseTimer();
                   } else {
-                    resumeTimer();
+                    if (isWaitingToStart) {
+                      resumeTimer(); // Resume if waiting
+                    } else {
+                      startTimer(); // Start the timer only if not waiting
+                    }
                   }
                 },
                 child: Text(
-                  isRunning ? 'Pause' : 'Start',
+                  isRunning ? 'Niruthu ✋' : 'Arambi ✅',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
@@ -138,7 +148,7 @@ class _PomodoroTimerState extends State<PomodoroTimer> {
               ElevatedButton(
                 onPressed: isRunning ? stopTimer : resetTimer,
                 child: Text(
-                  isRunning ? 'Stop' : 'Reset',
+                  isRunning ? 'Aduthu ✅' : 'Aduthu 🔁',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
